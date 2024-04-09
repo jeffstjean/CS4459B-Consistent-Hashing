@@ -36,3 +36,16 @@
     transform: rotate(360deg);
   }
 }
+
+/* App.css */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; /* Use full viewport height */
+}
+
+.svg-container {
+  margin-bottom: 20px; /* Space between the SVG and the form */
+}
