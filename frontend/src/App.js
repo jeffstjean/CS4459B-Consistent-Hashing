@@ -1,8 +1,8 @@
 // App.js
 import React, { useState } from 'react';
-import MainCircle from './Components/MainCircle';
-import SmallCircle from './Components/SmallCircle';
-import AddNodeForm from './Components/AddNodeForm';
+import MainCircle from './components/MainCircle';
+import SmallCircle from './components/SmallCircle';
+import AddNodeForm from './components/AddNodeForm';
 import './App.css';
 import SidePane from './components/SidePane';
 
@@ -33,6 +33,7 @@ function App() {
 
     return (
         <div className="app-container">
+          <SidePane />
             <svg width={svgSize} height={svgSize} className="svg-container">
                 <MainCircle cx={cx} cy={cy} radius={radius} />
                 {dots.map((dot, index) => (
