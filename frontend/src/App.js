@@ -4,6 +4,7 @@ import SmallCircle from './Components/SmallCircle';
 //import AddNodeForm from './Components/AddNodeForm';
 import ServerDetails from './Components/ServerDetails';
 import './App.css';
+import SidePane from './components/SidePane';
 
 function App() {
     const [servers, setServers] = useState(
