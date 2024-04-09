@@ -1,13 +1,18 @@
 // SmallCircle.js
 import React from 'react';
 
-function SmallCircle({ x, y, type }) {
-    // Set color and radius based on the type
+function SmallCircle({ x, y, type, setHoveredServerID, serverID }) {
     const color = type === 'server' ? 'red' : 'blue';
-    const radius = type === 'server' ? '10' : '5'; // Example: servers are larger dots
 
     return (
-        <circle cx={x} cy={y} r={radius} fill={color} />
+        <circle
+            cx={x}
+            cy={y}
+            r="10"
+            fill={color}
+            onMouseEnter={() => setHoveredServerID(serverID)}
+            onMouseLeave={() => setHoveredServerID(null)}
+        />
     );
 }
 export default SmallCircle;
