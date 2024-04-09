@@ -1,23 +1,26 @@
-import React, { useState, useEffect } from 'react';
+// App.js
+import React, { useState } from 'react';
 import './App.css';
+import SidePane from './components/SidePane';
 
 function App() {
-  const [message, setMessage] = useState('');
+  const [data, setData] = useState([]);
 
-  useEffect(() => {
-    fetch('http://localhost:4000/api/message')
-      .then(response => response.json())
-      .then(data => setMessage(data.message))
-      .catch(error => console.error("There was an error!", error));
-  }, []);
+  const handleAddData = (inputValue) => {
+    setData([...data, inputValue]);
+  };
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Server says: {message}
-        </p>
-      </header>
+    <div className="app">
+      <SidePane onAddData={handleAddData} />
+      <div className="main-content">
+        <h2>Data Display</h2>
+        <ul>
+          {data.map((item, index) => (
+            <li key={index}>{item}</li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
