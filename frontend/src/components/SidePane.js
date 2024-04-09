@@ -9,11 +9,32 @@ function SidePane({ onAddData }) {
     setInputValue(event.target.value);
   };
 
-  const handleSubmit = () => {
-    // Trigger onAddData callback with inputValue
-    onAddData(inputValue);
-    // Clear input field after adding data
-    setInputValue('');
+  const handleSubmit = async () => {
+    if (inputValue.trim() === '') {
+      return; // Do not submit empty value
+    }
+
+    try {
+      const response = await fetch('http://api.example.com/data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ data: inputValue })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add data');
+      }
+
+      // Clear input field after successful submission
+      setInputValue('');
+
+      // Trigger parent component's callback to update data display
+      onAddData(inputValue);
+    } catch (error) {
+      console.error('Error adding data:', error.message);
+    }
   };
 
   return (
