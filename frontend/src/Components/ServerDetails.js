@@ -1,4 +1,3 @@
-// ServerDetails.js
 import React from 'react';
 
 function ServerDetails({ server }) {
@@ -9,7 +8,19 @@ function ServerDetails({ server }) {
             <p>Last Heartbeat: {server.lastHb}</p>
             <p>Port: {server.port}</p>
             <p>Status: {server.status}</p>
-            <p>Degree: {server.degree}</p>
+            <p>Hash: {server.hash}</p>
+            {server.data && (
+                <div>
+                    <h4>Keys:</h4>
+                    <ul>
+                        {server.data.map((item, index) => (
+                            <li key={index}>
+                                Key: {item.key}, Value: {item.value}, Hash: {item.hash}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
         </div>
     );
 }
