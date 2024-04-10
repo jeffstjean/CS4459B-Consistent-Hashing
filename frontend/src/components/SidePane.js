@@ -76,9 +76,9 @@ function SidePane({ onAddData, onActivateNode, onDeactivateNode, server }) {
 
   return (
     <div className="side-pane">
-      <h2>Distributed system or whatever</h2>
+      <h2>Consistent Hashing Learning Tool</h2>
       {error && <p className="error">{error}</p>}
-      <h3>Input your data! or whatever dude</h3>
+      <h3>Input data</h3>
       <div className="input-container">
         <label>Key:</label>
         <input
@@ -100,26 +100,7 @@ function SidePane({ onAddData, onActivateNode, onDeactivateNode, server }) {
         />
       </div>
       <button onClick={handleSubmit}>Add Data</button>
-      <h3>Enter the key value you wish to receive! or whatever man fuck you</h3>
-
-      <div className="input-container">
-        <input
-          type="text"
-          name="getKey"
-          value={keyValue.getKey}
-          onChange={handleChange}
-          placeholder="Enter key to get value..."
-        />
-        <button onClick={handleGetValue}>Get Value</button>
-      </div>
-      <div>
-        {resultValue !== null && (
-          <p>
-            Value for key <strong>{keyValue.getKey}</strong>: {resultValue}
-          </p>
-        )}
-      </div>
-      <h3>Add and remove whatever you want bruuuuther!</h3>
+      <h3>Add or remove a node</h3>
 
       <label>
         Node Name:
