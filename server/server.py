@@ -6,6 +6,8 @@ import time
 
 app = Flask(__name__)
 data_store = {}
+thread = None
+heartbeat_active = True
 
 @app.route('/')
 def main():
@@ -25,18 +27,44 @@ def data():
             return jsonify({'message': 'Invalid JSON format. Please provide "key" and "value".'}), 400
     else:
         data = request.json
-        return data_store
+        return jsonify(data_store)
+
+@app.route('/status', methods=['POST'])
+def update_status():
+    global heartbeat_active
+    global data_store
+    
+    data = request.json
+
+    if 'status' not in data:
+        return jsonify({'error': True, 'message': 'Please provide "status"'}), 400
+
+    status_check = data['status']
+
+    if status_check == 'activate':
+        heartbeat_active = True
+        return jsonify(data_store)
+
+    if status_check == 'deactivate':
+        temp_dict = data_store.copy()
+        data_store.clear()
+        heartbeat_active = False
+        return jsonify(temp_dict)          
 
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('PORT', type=str, help="The port to use for the sever")
     args = parser.parse_args()
-
     return args
 
 def heartbeat(PORT):
     while True:
-        data = {"name": f"server.{PORT}", "status": "active", "port": PORT}
+        if not heartbeat_active:
+            continue
+        print('heartbeat')
+
+        status = "active" if heartbeat_active else "inactive"
+        data = {"name": f"server.{PORT}", "status": status, "port": PORT}
         try:
             response = requests.post('http://localhost:4000/heartbeat', json=data)
             #print("Data posted successfully")
@@ -53,5 +81,3 @@ if __name__ == '__main__':
     thread.start()
 
     app.run(debug=True, port=args.PORT)
-
-
