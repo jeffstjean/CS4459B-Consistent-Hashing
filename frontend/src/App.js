@@ -89,12 +89,12 @@ function App() {
 
   return (
     <div className="app-container">
-       <SidePane
-      onAddData={handleAddData}
-      onActivateNode={handleActivateNode}
-      onDeactivateNode={handleDeactivateNode}
-      server={servers.find(server => server.hash === hoveredServerID)} // Pass hovered server data
-    />
+      <SidePane
+        onAddData={handleAddData}
+        onActivateNode={handleActivateNode}
+        onDeactivateNode={handleDeactivateNode}
+        server={servers.find(server => server.hash === hoveredServerID)} // Pass hovered server data
+      />
       <svg width={svgSize} height={svgSize} className="svg-container">
         <MainCircle cx={cx} cy={cy} radius={radius} />
         {servers.map(server => (
@@ -105,8 +105,8 @@ function App() {
             type="server"
             setHoveredServerID={setHoveredServerID}
             serverID={server.hash}
-            isHighlighted={hoveredServerID === server.hash} 
-            port = {server.port}// Additional prop for server highlighting
+            isHighlighted={hoveredServerID === server.hash}
+            port={server.port}// Additional prop for server highlighting
           />
         ))}
         {keys.map((key, index) => (
@@ -115,12 +115,12 @@ function App() {
             x={key.x}
             y={key.y}
             type="key"
-            isHighlighted={hoveredServerID === key.serverHash} 
-            keyValue = {key.keyValue}// Determine if the key should highlight
+            isHighlighted={hoveredServerID === key.serverHash}
+            keyValue={key.keyValue}// Determine if the key should highlight
           />
         ))}
       </svg>
-      {/* {hoveredServerID && <ServerDetails server={servers.find(server => server.hash === hoveredServerID)} />} */}
+      {hoveredServerID && <ServerDetails server={servers.find(server => server.hash === hoveredServerID)} />}
     </div>
   );
 }
