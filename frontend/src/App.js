@@ -7,48 +7,7 @@ import './App.css';
 import SidePane from './Components/SidePane';
 
 function App() {
-  const [servers, setServers] = useState(
-    [
-      {
-        "hash": 5000,
-        "lastHb": "Tue, 09 Apr 2024 19:24:15 GMT",
-        "name": "server.002",
-        "port": 4002,
-        "status": "active",
-        "data": [
-          {
-            "key": "somekey",
-            "value": "somevalue",
-            "hash": 6482
-          },
-          {
-            "key": "one more key",
-            "value": "one value",
-            "hash": 483
-          }
-        ]
-      },
-      {
-        "hash": 1,
-        "lastHb": "Tue, 09 Apr 2024 19:24:15 GMT",
-        "name": "server.002",
-        "port": 4003,
-        "status": "active",
-        "data": [
-          {
-            "key": "somekey",
-            "value": "somevalue",
-            "hash": 1024
-          },
-          {
-            "key": "somekey",
-            "value": "somevalue",
-            "hash": 2342
-          }
-        ]
-      }
-    ]
-  );
+  const [servers, setServers] = useState([]);
 
   const [keys, setKeys] = useState([]); // Initialize keys state
   const [hoveredServerID, setHoveredServerID] = useState(null); // Track hovered server ID
@@ -62,27 +21,41 @@ function App() {
 
 
   useEffect(() => {
-    const newServers = servers.map(server => {
-      const degrees = (server.hash / 10000) * 360; // Scale hash value to degrees (0-360)
-      const radians = degrees * (Math.PI / 180); // Convert degrees to radians
-      const x = cx + radius * Math.cos(radians); // Calculate x-coordinate
-      const y = cy + radius * Math.sin(radians); // Calculate y-coordinate
-      return { ...server, x, y };
-    });
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://localhost:4000/data');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        console.log('Fetched data:', data); // Log the fetched data
 
-    const newKeys = servers.flatMap(server =>
-      server.data.map(key => {
-        const degrees = (key.hash / 10000) * 360; // Scale hash value to degrees (0-360)
-        const radians = degrees * (Math.PI / 180); // Convert degrees to radians
-        const x = cx + radius * Math.cos(radians); // Calculate x-coordinate
-        const y = cy + radius * Math.sin(radians); // Calculate y-coordinate
-        return { ...key, serverHash: server.hash, x, y, type: 'key' };
-      })
-    );
+        const newServers = data.map(server => {
+          const degrees = (server.hash / 10000) * 360;
+          const radians = degrees * (Math.PI / 180);
+          return { ...server, x: cx + radius * Math.cos(radians), y: cy + radius * Math.sin(radians) };
+        });
 
-    setServers(newServers);
-    setKeys(newKeys);
-  }, [servers]);
+        const newKeys = data.flatMap(server =>
+          server.data.map(key => {
+            const degrees = (key.hash / 10000) * 360;
+            const radians = degrees * (Math.PI / 180);
+            return { ...key, serverHash: server.hash, x: cx + radius * Math.cos(radians), y: cy + radius * Math.sin(radians), type: 'key' };
+          })
+        );
+
+        setServers(newServers);
+        setKeys(newKeys);
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      }
+    };
+
+    fetchData();
+    const intervalId = setInterval(fetchData, 5000); // Fetch data every 5 seconds
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, []);
   // const addServer = (serverData) => {
   //     const radians = serverData.degree * (Math.PI / 180);
   //     const x = cx + radius * Math.cos(radians);
