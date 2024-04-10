@@ -1,26 +1,34 @@
-// SidePane.js
 import React, { useState } from 'react';
 import './SidePane.css';
 
 function SidePane({ onAddData, onActivateNode, onDeactivateNode }) {
-  const [inputValue, setInputValue] = useState('');
+  const [keyValue, setKeyValue] = useState({ key: '', value: '' });
+  const [error, setError] = useState(null);
 
   const handleChange = (event) => {
-    setInputValue(event.target.value);
+    const { name, value } = event.target;
+    setKeyValue((prevKeyValue) => ({
+      ...prevKeyValue,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async () => {
-    if (inputValue.trim() === '') {
-      return; // Do not submit empty value
+    const { key, value } = keyValue;
+
+    if (!key.trim() || !value.trim()) {
+      setError('Please enter both key and value.');
+      setKeyValue({ key: '', value: '' });
+      return;
     }
 
     try {
-      const response = await fetch('http://api.example.com/data', {
+      const response = await fetch('http://localhost:4000/data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ data: inputValue })
+        body: JSON.stringify({ key, value })
       });
 
       if (!response.ok) {
@@ -30,34 +38,40 @@ function SidePane({ onAddData, onActivateNode, onDeactivateNode }) {
       const responseData = await response.json();
 
       // Update parent component's state with hashed value
-      onAddData(responseData.hashedData);
+      onAddData(responseData);
 
-      // Clear input field after successful submission
-      setInputValue('');
+      // Clear input fields after successful submission
+      setKeyValue({ key: '', value: '' });
+      setError(null); // Reset error state
     } catch (error) {
-      console.error('Error adding data:', error.message);
+      setError('Error adding data: ' + error.message);
     }
   };
-
-//   const handleAddNode = () => {
-//     // Call the parent component's function to add a node
-//     onAddNode();
-//   };
-
-//   const handleRemoveNode = () => {
-//     // Call the parent component's function to remove a node
-//     onRemoveNode();
-//   };
 
   return (
     <div className="side-pane">
       <h2>Data Input</h2>
-      <input
-        type="text"
-        value={inputValue}
-        onChange={handleChange}
-        placeholder="Enter data..."
-      />
+      <div className="input-container">
+        <label>Key:</label>
+        <input
+          type="text"
+          name="key"
+          value={keyValue.key}
+          onChange={handleChange}
+          placeholder="Enter key..."
+        />
+      </div>
+      <div className="input-container">
+        <label>Value:</label>
+        <input
+          type="text"
+          name="value"
+          value={keyValue.value}
+          onChange={handleChange}
+          placeholder="Enter value..."
+        />
+      </div>
+      {error && <p className="error">{error}</p>}
       <button onClick={handleSubmit}>Add Data</button>
       <div className="button-group">
         <button onClick={onActivateNode}>Add Node</button>
