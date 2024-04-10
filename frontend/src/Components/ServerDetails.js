@@ -1,6 +1,9 @@
 import React from 'react';
 import './ServerDetails.css';
 function ServerDetails({ server }) {
+    if (!server) {
+        return null;
+    }
     return (
         <div className='server-details-pane'>
             <div className='server-details-content'>
