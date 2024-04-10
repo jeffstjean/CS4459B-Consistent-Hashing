@@ -1,0 +1,45 @@
+/* ServerDetailsPane.css */
+.server-details-pane {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.server-details-content {
+    max-width: 400px;
+}
+
+.server-details-content h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.server-details-content p {
+    margin-bottom: 8px;
+}
+
+.server-details-content ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.server-details-content li {
+    margin-bottom: 4px;
+}
+
+.server-details-content button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.server-details-content button:hover {
+    background-color: #0056b3;
+}
