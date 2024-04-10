@@ -95,7 +95,9 @@ def heartbeat():
         if isNew:
             server_list[name] = server
             print(f"Discovered new server '{server['name']}' on port '{server['port']}'")
+
         server_list[name]['lastHb'] = datetime.now()
+        server_list[name]['status'] = server["status"]
 
     # return some JSON data
     return jsonify({ 'isNew': isNew })
@@ -132,7 +134,6 @@ def data():
                     response = requests.get(f"http://localhost:{info['port']}/data", json={})
                     if response.status_code == 200:
                         data_items = response.json()
-                        print(f'Data: {data_items}')
                         data_list = [
                             {
                                 "key": key,
@@ -155,12 +156,15 @@ def data():
         return jsonify(server_data)
 
 @app.route('/status', methods=['POST'])
-def update_status():
-    if 'server' not in request.args or 'status' not in request.args:
+def status():
+
+    data = request.json
+
+    if 'server' not in data or 'status' not in data:
         return jsonify({ 'error': True, 'message': 'Please provide "server" and "status"'} ), 400
 
-    server_name = request.args.get('server')
-    status = request.args.get('status').lower()
+    server_name = data['server']
+    status = data['status']
 
     if status != 'activate' and status != 'deactivate':
         return jsonify({ 'error': True, 'message': '"status" must be "activate" or "deactivate"'} ), 400
@@ -173,13 +177,13 @@ def update_status():
                 try:
                     url = f"http://localhost:{server_info['port']}/status"
                     response = requests.post(url, json={'status': status})
-                    if status != 'deactivate':
+                    if status == 'activate':
                         return jsonify({'success': True, 'message': 'Status updated'})
                     
-                    print("Redistributing data")
-                    # data = response.json()
-                    # for key, value in data.items():
-                    #     add_data(key, value)
+                    data = response.json()
+                    print(f"adding {data}")
+                    for key, value in data.items():
+                        add_data(key, value)
                     return jsonify({'success': True, 'message': 'Status updated and data redistributed'})
                 except requests.exceptions.RequestException as e:
                     return jsonify({'error': True, 'message': f'Failed to update status: {e}'}), 500
