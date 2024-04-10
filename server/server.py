@@ -36,7 +36,7 @@ def parse_args():
 
 def heartbeat(PORT):
     while True:
-        data = {"name": "server.{PORT}", "status": "active", "port": PORT}
+        data = {"name": f"server.{PORT}", "status": "active", "port": PORT}
         try:
             response = requests.post('http://localhost:4000/heartbeat', json=data)
             #print("Data posted successfully")
