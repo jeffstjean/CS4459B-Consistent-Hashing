@@ -4,6 +4,7 @@ import ServerDetails from './ServerDetails';
 
 function SidePane({ onAddData, onActivateNode, onDeactivateNode, server }) {
   const [keyValue, setKeyValue] = useState({ key: '', value: '' });
+  const [getKey, setGetKey] = useState('');
   const [error, setError] = useState(null);
   const [resultValue, setResultValue] = useState(null);
 
@@ -13,6 +14,11 @@ function SidePane({ onAddData, onActivateNode, onDeactivateNode, server }) {
       ...prevKeyValue,
       [name]: value
     }));
+  };
+
+  const handleGetKeyChange = (event) => {
+    const { value } = event.target;
+    setGetKey(value);
   };
 
   const handleSubmit = async () => {
@@ -50,22 +56,21 @@ function SidePane({ onAddData, onActivateNode, onDeactivateNode, server }) {
   };
 
   const handleGetValue = async () => {
-    const { key } = keyValue;
 
-    if (!key.trim()) {
+    if (!getKey.trim()) {
       setError('Please enter a key.');
       return;
     }
 
     try {
-      const response = await fetch(`http://localhost:4000/data?key=${key}`);
+      const response = await fetch(`http://localhost:4000/data?key=${getKey}`);
 
       if (!response.ok) {
         throw new Error('Failed to retrieve data');
       }
 
       const responseData = await response.json();
-      console.log('Response Data:', responseData); // Log the response data to console
+      console.log('Get Valuer Response:', responseData); // Log the response data to console
       setResultValue(responseData.value || 'Not found'); // Update result value or show 'Not found' message
       setError(null); // Reset error state
     } catch (error) {
@@ -105,8 +110,8 @@ function SidePane({ onAddData, onActivateNode, onDeactivateNode, server }) {
         <input
           type="text"
           name="getKey"
-          value={keyValue.getKey}
-          onChange={handleChange}
+          value={getKey}
+          onChange={handleGetKeyChange}
           placeholder="Enter key to get value..."
         />
         <button onClick={handleGetValue}>Get Value</button>
@@ -124,7 +129,7 @@ function SidePane({ onAddData, onActivateNode, onDeactivateNode, server }) {
         <button onClick={onActivateNode}>Add Node</button>
         <button onClick={onDeactivateNode}>Remove Node</button>
       </div>
-      
+
       {server && <ServerDetails server={server} />}
     </div>
   );
