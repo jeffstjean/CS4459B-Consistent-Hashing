@@ -4,6 +4,7 @@ import './SidePane.css';
 function SidePane({ onAddData, onActivateNode, onDeactivateNode }) {
   const [keyValue, setKeyValue] = useState({ key: '', value: '' });
   const [error, setError] = useState(null);
+  const [resultValue, setResultValue] = useState(null);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -18,7 +19,6 @@ function SidePane({ onAddData, onActivateNode, onDeactivateNode }) {
 
     if (!key.trim() || !value.trim()) {
       setError('Please enter both key and value.');
-      setKeyValue({ key: '', value: '' });
       return;
     }
 
@@ -48,9 +48,35 @@ function SidePane({ onAddData, onActivateNode, onDeactivateNode }) {
     }
   };
 
+  const handleGetValue = async () => {
+    const { key } = keyValue;
+
+    if (!key.trim()) {
+      setError('Please enter a key.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:4000/data?key=${key}`);
+
+      if (!response.ok) {
+        throw new Error('Failed to retrieve data');
+      }
+
+      const responseData = await response.json();
+      console.log('Response Data:', responseData); // Log the response data to console
+      setResultValue(responseData.value || 'Not found'); // Update result value or show 'Not found' message
+      setError(null); // Reset error state
+    } catch (error) {
+      setError('Error retrieving data: ' + error.message);
+    }
+  };
+
   return (
     <div className="side-pane">
-      <h2>Data Input</h2>
+      <h2>Distributed system or whatever</h2>
+      {error && <p className="error">{error}</p>}
+      <h3>Input your data! or whatever dude</h3>
       <div className="input-container">
         <label>Key:</label>
         <input
@@ -71,8 +97,28 @@ function SidePane({ onAddData, onActivateNode, onDeactivateNode }) {
           placeholder="Enter value..."
         />
       </div>
-      {error && <p className="error">{error}</p>}
       <button onClick={handleSubmit}>Add Data</button>
+      <h3>Enter the key value you wish to receive! or whatever man fuck you</h3>
+
+      <div className="input-container">
+        <input
+          type="text"
+          name="getKey"
+          value={keyValue.getKey}
+          onChange={handleChange}
+          placeholder="Enter key to get value..."
+        />
+        <button onClick={handleGetValue}>Get Value</button>
+      </div>
+      <div>
+        {resultValue !== null && (
+          <p>
+            Value for key <strong>{keyValue.getKey}</strong>: {resultValue}
+          </p>
+        )}
+      </div>
+      <h3>Add and remove whatever you want bruuuuther!</h3>
+
       <div className="button-group">
         <button onClick={onActivateNode}>Add Node</button>
         <button onClick={onDeactivateNode}>Remove Node</button>
