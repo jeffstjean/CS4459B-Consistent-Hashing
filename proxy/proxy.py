@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from threading import Lock, Thread
 from datetime import datetime
 import hashlib
@@ -143,7 +144,10 @@ def data():
                         server_data.append({
                             "name": name,
                             "hash": hashing.hash(name),
-                            "data": data_list
+                            "data": data_list,
+                            "port": info['port'],
+                            "status": info['status'],
+                            "lastHb": info['lastHb']
                         })
                 except requests.exceptions.RequestException:
                     continue
@@ -185,3 +189,4 @@ def update_status():
 
 if __name__ == '__main__':
     app.run(debug=True, port=4000)
+    CORS(app)
