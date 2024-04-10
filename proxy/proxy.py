@@ -40,6 +40,15 @@ class ConsistentHashing:
             if self.hash(server_name) == hash_value:
                 return server_info
         return None
+    
+    def get_next_higher_node(self, node):
+        hash_value = self.hash(node)
+        # If the node's hash is greater than the last in the list, wrap around to the first node
+        for node_hash in self.nodes:
+            if hash_value < node_hash:
+                return self._find_server_by_hash(node_hash)
+        # Wrap around to the first node in the list
+        return self._find_server_by_hash(self.nodes[0]) if self.nodes else None
 
 # how long to wait for a heartbeat from a server before considering it down
 HEARTBEAT_TIMEOUT_S = 5
@@ -75,39 +84,64 @@ cleanup_thread.start()
 
 @app.route('/heartbeat', methods=['POST'])
 def heartbeat():
-    # we expect servers to send heartbeat messages with the following structure
-    # {
-    #    name: '',
-    #    status: 'active'
-    #    port: 4001
-    # }
-
-    # use lock to avoid race conditions
     with lock:
-        # get the request data from the HTTP payload
-        server = request.json
+        server_data = request.json
+        name = server_data['name']
 
-        name = server['name']
-        isNew = not name in server_list.keys()
-        hashing.add_node(name)
-
-        # if this is a new server, add it to our list
+        isNew = name not in server_list
         if isNew:
-            server_list[name] = server
-            print(f"Discovered new server '{server['name']}' on port '{server['port']}'")
+            hashing.add_node(name)
+            server_list[name] = server_data
+            print(f"Discovered new server '{server_data['name']}' on port '{server_data['port']}'")
+
+        state_change_to_active = server_data['status'] == 'active' and server_list[name]['status'] == 'inactive'
+
+
+        if state_change_to_active:
+            hashing.add_node(name)
+            # Implement redistribution logic here
+            redistribute_data_on_activation(name)
 
         server_list[name]['lastHb'] = datetime.now()
-        server_list[name]['status'] = server['status']
+        server_list[name]['status'] = server_data['status']
 
-    # return some JSON data
-    return jsonify({ 'isNew': isNew })
+        return jsonify({'isNew': isNew, 'stateChangeToActive': state_change_to_active})
+
+def redistribute_data_on_activation(server_name):
+    # Assuming server_name is the name of the server that has just become active
+    # This function encapsulates the logic for redistributing the data accordingly
+
+    server_hash = hashing.hash(server_name)
+    next_higher_node_info = hashing.get_next_higher_node(server_name)
+
+    if next_higher_node_info:
+        try:
+            # Retrieve data from the next higher node
+            higher_node_data_response = requests.get(f"http://localhost:{next_higher_node_info['port']}/data", json={})
+            if higher_node_data_response.status_code == 200:
+                data_items = higher_node_data_response.json()
+
+                # Determine which items should be moved to the newly active server
+                items_to_transfer = {k: v for k, v in data_items.items() if hashing.hash(k) <= server_hash}
+
+                # Remove items from the higher node and add them to the newly active server
+                for key, value in items_to_transfer.items():
+                    # Assuming deletion is handled or silently ignored if not needed
+                    requests.delete(f"http://localhost:{next_higher_node_info['port']}/data", json={key: key})
+                    add_data(key, value)
+
+        except requests.exceptions.RequestException as e:
+            print(f'Error redistributing data: {e}')
+            # Handle exception or logging
+
+# Ensure add_data is defined as previously outlined or updated accordingly
 
 def add_data(key, value):
     key_hash = hashing.hash(key)
     server_info = hashing.get_server(key_hash)
     
     if not server_info:
-        return jsonify({'error': 'No servers available'}), 503
+        return jsonify({'error': True, 'message': 'No servers available'}), 503
     
     url = f"http://localhost:{server_info['port']}/data"
 
@@ -181,7 +215,6 @@ def status():
                         return jsonify({'success': True, 'message': 'Status updated'})
                     
                     data = response.json()
-                    print(f"adding {data}")
                     for key, value in data.items():
                         add_data(key, value)
                     return jsonify({'success': True, 'message': 'Status updated and data redistributed'})
@@ -193,4 +226,4 @@ def status():
 
 if __name__ == '__main__':
     CORS(app)
-    app.run(debug=True, port=4000)
+    app.run(debug=True, port=4000, use_reloader=False)
