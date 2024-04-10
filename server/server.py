@@ -59,17 +59,11 @@ def parse_args():
 
 def heartbeat(PORT):
     while True:
-        if not heartbeat_active:
-            continue
-        print('heartbeat')
-
         status = "active" if heartbeat_active else "inactive"
         data = {"name": f"server.{PORT}", "status": status, "port": PORT}
         try:
             response = requests.post('http://localhost:4000/heartbeat', json=data)
-            #print("Data posted successfully")
         except Exception as e:
-            #print(f"Error posting data: {e}")
             pass
         time.sleep(1)        
 
@@ -80,4 +74,4 @@ if __name__ == '__main__':
     thread.daemon = True
     thread.start()
 
-    app.run(debug=True, port=args.PORT)
+    app.run(debug=True, port=args.PORT, use_reloader=False)
