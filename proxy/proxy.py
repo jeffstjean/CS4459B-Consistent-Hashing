@@ -109,7 +109,7 @@ def heartbeat():
         # if this is a new server, add it to our list
         if isNew:
             server_list[name] = server
-            print(f"Discovered new server '{server['name']}' with status '{server['status']}'")
+            print(f"Discovered new server '{server['name']}' on port '{server['port']}'")
         server_list[name]['lastHb'] = datetime.now()
 
     # return some JSON data
@@ -123,14 +123,14 @@ def data():
     if not server_info:
         return jsonify({'error': 'No servers available'}), 503
     
-    url = f"http://{server_info['name']}:{server_info['port']}/data?key={key}"
+    url = f"http://localhost:{server_info['port']}/data?key={key}"
 
-    # if request.method == 'POST':
-    #     response = requests.post(url, json=request.get_json())
-    # else:
-    #     response = requests.get(url)
+    if request.method == 'POST':
+        response = requests.post(url, json=request.get_json())
+    else:
+        response = requests.get(url)
 
-    # return jsonify(response.json()), response.status_code
+    return jsonify(response.json()), response.status_code
 
     return jsonify(success=True)
 
