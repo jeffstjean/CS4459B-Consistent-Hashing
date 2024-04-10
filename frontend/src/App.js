@@ -79,22 +79,44 @@ function App() {
 
   const hoveredServer = servers.find(server => server.hash === hoveredServerID);
 
+  const postStatus = async (name, status) => {
+    try {
+      const response = await fetch('http://localhost:4000/status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ server: `server.${name}`, status: status }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      await response.json();
+    } catch (error) {
+      alert(`Failed to ${status} node ${name}: {error}`);
+    }
+  };
+
   const handleAddData = (hashedData) => {
     // Implement logic to update data in parent component
     // POST data entered
     console.log('Data added:', hashedData);
   };
 
-  const handleActivateNode = () => {
+  const handleActivateNode = (name) => {
     // Implement logic to add a node
     // POST CMD ACTIVATENODE
     console.log('Node added');
+    postStatus(name, 'activate')
   };
 
-  const handleDeactivateNode = () => {
+  const handleDeactivateNode = (name) => {
     // Implement logic to remove a node
     // POST CMD DEACTIVATENODE
     console.log('Node removed');
+    postStatus(name, 'deactivate')
   };
 
   return (

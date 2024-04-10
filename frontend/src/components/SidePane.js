@@ -6,6 +6,7 @@ function SidePane({ onAddData, onActivateNode, onDeactivateNode, server }) {
   const [keyValue, setKeyValue] = useState({ key: '', value: '' });
   const [error, setError] = useState(null);
   const [resultValue, setResultValue] = useState(null);
+  const [serverName, setServerName] = useState('');
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -120,9 +121,13 @@ function SidePane({ onAddData, onActivateNode, onDeactivateNode, server }) {
       </div>
       <h3>Add and remove whatever you want bruuuuther!</h3>
 
+      <label>
+        Node Name:
+        <input type="text" value={serverName} onChange={(e) => setServerName(e.target.value)} />
+      </label>
       <div className="button-group">
-        <button onClick={onActivateNode}>Add Node</button>
-        <button onClick={onDeactivateNode}>Remove Node</button>
+        <button onClick={() => onActivateNode(serverName)}>Add Node</button>
+        <button onClick={() => onDeactivateNode(serverName)}>Remove Node</button>
       </div>
       
       {server && <ServerDetails server={server} />}
