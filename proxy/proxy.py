@@ -97,7 +97,7 @@ def heartbeat():
             print(f"Discovered new server '{server['name']}' on port '{server['port']}'")
 
         server_list[name]['lastHb'] = datetime.now()
-        server_list[name]['status'] = server["status"]
+        server_list[name]['status'] = server['status']
 
     # return some JSON data
     return jsonify({ 'isNew': isNew })
@@ -109,10 +109,10 @@ def add_data(key, value):
     if not server_info:
         return jsonify({'error': 'No servers available'}), 503
     
-    url = f"http://localhost:{server_info['port']}/data?key={key}&value={value}"
+    url = f"http://localhost:{server_info['port']}/data"
 
     try:
-        requests.post(url, json=request.get_json())
+        requests.post(url, json={'key': key, 'value': value})
         return jsonify(success=True)
     except requests.exceptions.RequestException as e:
         return jsonify({ 'error': True, 'message': f'Failed to POST data: {e}' })
@@ -171,7 +171,7 @@ def status():
     
     with lock:
         if server_name in server_list:
-            server_info = server_list.pop(server_name, None)
+            server_info = server_list[server_name]
             hashing.remove_node(server_name)
             if server_info:
                 try:
