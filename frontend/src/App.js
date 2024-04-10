@@ -13,7 +13,7 @@ function App() {
   const [hoveredServerID, setHoveredServerID] = useState(null); // Track hovered server ID
 
   const radius = 300;
-  const svgSize = 2 * radius + 50; // SVG size to accommodate the circle
+  const svgSize = 2 * radius + 100; // SVG size to accommodate the circle
   const cx = svgSize / 2; // Center x-coordinate of the circle
   const cy = svgSize / 2; // Center y-coordinate of the circle
 
@@ -40,7 +40,7 @@ function App() {
           server.data.map(key => {
             const degrees = (key.hash / 10000) * 360;
             const radians = degrees * (Math.PI / 180);
-            return { ...key, serverHash: server.hash, x: cx + radius * Math.cos(radians), y: cy + radius * Math.sin(radians), type: 'key' };
+            return { ...key, serverHash: server.hash, x: cx + radius * Math.cos(radians), y: cy + radius * Math.sin(radians), type: 'key', keyValue: key.key };
           })
         );
 
@@ -115,7 +115,8 @@ function App() {
             x={key.x}
             y={key.y}
             type="key"
-            isHighlighted={hoveredServerID === key.serverHash} // Determine if the key should highlight
+            isHighlighted={hoveredServerID === key.serverHash} 
+            keyValue = {key.keyValue}// Determine if the key should highlight
           />
         ))}
       </svg>

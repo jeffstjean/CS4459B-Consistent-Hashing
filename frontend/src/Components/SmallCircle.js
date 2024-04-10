@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './../App.css';
 
-function SmallCircle({ x, y, type, setHoveredServerID, serverID, isHighlighted, port }) {
+function SmallCircle({ x, y, type, setHoveredServerID, serverID, isHighlighted, port, keyValue }) {
     const [isHovered, setIsHovered] = useState(false);
 
     const handleMouseEnter = () => {
@@ -67,6 +67,18 @@ function SmallCircle({ x, y, type, setHoveredServerID, serverID, isHighlighted, 
                         {port}
                     </text>
                 </>
+            )}
+         {type === 'key' && isHighlighted && (
+                <text
+                    x={x}
+                    y={y + 20} // Position the text below the key circle when highlighted
+                    textAnchor="middle"
+                    alignmentBaseline="middle"
+                    className="key-text"
+                    style={{ fill: 'black', fontSize: '10px' }} // Style the key text
+                >
+                    {keyValue} {/* Display the key stored */}
+                </text>
             )}
         </g>
     );
