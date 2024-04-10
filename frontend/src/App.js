@@ -30,11 +30,19 @@ function App() {
         const data = await response.json();
         console.log('Fetched data:', data); // Log the fetched data
 
-        const newServers = data.map(server => {
-          const degrees = (server.hash / 10000) * 360;
-          const radians = degrees * (Math.PI / 180);
-          return { ...server, x: cx + radius * Math.cos(radians), y: cy + radius * Math.sin(radians) };
+        const newServers = data
+        .filter(server => server.status === "active") // Only proceed with active servers
+        .map(server => {
+          const degrees = (server.hash / 10000) * 360; // Convert hash to degrees
+          const radians = degrees * (Math.PI / 180); // Convert degrees to radians for positioning
+          // Calculate the x and y coordinates based on the converted radians
+          return { 
+            ...server, 
+            x: cx + radius * Math.cos(radians), 
+            y: cy + radius * Math.sin(radians) 
+          };
         });
+      
 
         const newKeys = data.flatMap(server =>
           server.data.map(key => {
@@ -45,6 +53,8 @@ function App() {
         );
 
         setServers(newServers);
+        //setServers(servers.filter(server => server.status == "active"));
+
         setKeys(newKeys);
       } catch (error) {
         console.error('Failed to fetch data:', error);

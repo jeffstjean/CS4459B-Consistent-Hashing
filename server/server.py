@@ -13,7 +13,7 @@ heartbeat_active = True
 def main():
     return 'Hello, World!'
 
-@app.route('/data', methods=['GET','POST'])
+@app.route('/data', methods=['GET','POST', 'DELETE'])
 def data():
     if request.method == 'POST':
         data = request.json
@@ -21,10 +21,16 @@ def data():
             key = data['key']
             value = data['value']
             data_store[key] = value
-            print (data_store)
+            print(f"Adding {key}, {value}")
             return jsonify({'message': f'Data added successfully. Key: {key}, Value: {value}'}), 200
         else:
             return jsonify({'message': 'Invalid JSON format. Please provide "key" and "value".'}), 400
+    elif request.method == 'DELETE':
+        data = request.json
+        for key in data:
+            print(f"Deleting {key}")
+            data_store.pop(key, None)
+        return jsonify(data_store)
     else:
         data = request.json
         return jsonify(data_store)
