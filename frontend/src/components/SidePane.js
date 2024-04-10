@@ -13,7 +13,7 @@ function SidePane({ onAddData }) {
     if (inputValue.trim() === '') {
       return; // Do not submit empty value
     }
-
+  
     try {
       const response = await fetch('http://api.example.com/data', {
         method: 'POST',
@@ -22,20 +22,23 @@ function SidePane({ onAddData }) {
         },
         body: JSON.stringify({ data: inputValue })
       });
-
+  
       if (!response.ok) {
         throw new Error('Failed to add data');
       }
-
+  
+      const responseData = await response.json();
+  
+      // Update parent component's state with hashed value
+      onAddData(responseData.hashedData);
+  
       // Clear input field after successful submission
       setInputValue('');
-
-      // Trigger parent component's callback to update data display
-      onAddData(inputValue);
     } catch (error) {
       console.error('Error adding data:', error.message);
     }
   };
+  
 
   return (
     <div className="side-pane">
