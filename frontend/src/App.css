@@ -81,3 +81,78 @@
 .svg-container {
   margin-bottom: 20px; /* Space between the SVG and the form */
 }
+
+
+.circle-base {
+  transition: all 0.3s ease; /* Smooth transition for size and color changes */
+}
+
+.circle-hovered {
+  r: 20; /* Increase radius to make the circle slightly bigger */
+  fill: #ff5722; /* Change color to a visually distinct one */
+  stroke: #ff9800; /* Add a stroke to make it more prominent */
+  stroke-width: 2; /* Stroke width for visibility */
+  cursor: pointer; /* Change cursor to indicate it's interactive */
+}
+/* App.css */
+.circle-base {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.circle-hovered, .circle-highlighted {
+  stroke: var(--hover-stroke-color, #ff9800); /* Adjust based on highlighted state */
+  stroke-width: var(--hover-stroke-width, 2px);
+}
+
+.server-circle {
+  fill: var(--server-fill-color, red);
+}
+
+.key-circle {
+  fill: var(--key-fill-color, blue); /* Default blue for keys */
+}
+
+/* Update this class based on your needs for highlighted key circles */
+.key-circle-highlighted {
+  fill: var(--highlight-fill-color, #add8e6); /* Lighter blue for highlighted keys */
+  stroke: var(--highlight-stroke-color, #007bff); /* Blue outline for highlighted keys */
+  stroke-width: 2px; /* Outline width */
+}
+
+
+
+/* App.css */
+.circle-base {
+  transition: fill 0.3s ease, stroke 0.3s ease, r 0.3s ease;
+  cursor: pointer;
+}
+
+.circle-hovered, .circle-highlighted {
+  stroke: var(--stroke-color, #007bff); /* Default to a blue outline */
+  stroke-width: var(--hover-stroke-width, 2px);
+}
+
+.key-circle {
+  fill: var(--key-fill-color, blue); /* Default key fill */
+}
+
+.server-id-text {
+  font-size: 12px;
+  transition: font-weight 0.3s ease, fill 0.3s ease;
+  fill: rgb(0, 0, 0); /* Default to white text */
+}
+
+.server-id-text-bold {
+  font-weight: bold;
+  fill: black; /* Bolded state has black text */
+}
+
+.text-background {
+  fill: #ffffff; /* Light grey background by default */
+  transition: fill 0.3s ease;
+}
+
+.text-background-bold {
+  fill: white; /* Fully white background for bolded state */
+}

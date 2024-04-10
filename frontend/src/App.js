@@ -10,7 +10,7 @@ function App() {
   const [servers, setServers] = useState(
     [
       {
-        "hash": 500,
+        "hash": 5000,
         "lastHb": "Tue, 09 Apr 2024 19:24:15 GMT",
         "name": "server.002",
         "port": 4002,
@@ -19,7 +19,7 @@ function App() {
           {
             "key": "somekey",
             "value": "somevalue",
-            "hash": 1024
+            "hash": 6482
           },
           {
             "key": "one more key",
@@ -39,6 +39,11 @@ function App() {
             "key": "somekey",
             "value": "somevalue",
             "hash": 1024
+          },
+          {
+            "key": "somekey",
+            "value": "somevalue",
+            "hash": 2342
           }
         ]
       }
@@ -71,7 +76,7 @@ function App() {
         const radians = degrees * (Math.PI / 180); // Convert degrees to radians
         const x = cx + radius * Math.cos(radians); // Calculate x-coordinate
         const y = cy + radius * Math.sin(radians); // Calculate y-coordinate
-        return { ...key, serverName: server.name, x, y, type: 'key' };
+        return { ...key, serverHash: server.hash, x, y, type: 'key' };
       })
     );
 
@@ -126,6 +131,8 @@ function App() {
             type="server"
             setHoveredServerID={setHoveredServerID}
             serverID={server.hash}
+            isHighlighted={hoveredServerID === server.hash} 
+            port = {server.port}// Additional prop for server highlighting
           />
         ))}
         {keys.map((key, index) => (
@@ -134,7 +141,7 @@ function App() {
             x={key.x}
             y={key.y}
             type="key"
-          // You may want to handle key hover differently
+            isHighlighted={hoveredServerID === key.serverHash} // Determine if the key should highlight
           />
         ))}
       </svg>
