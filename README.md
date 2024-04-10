@@ -1,7 +1,7 @@
 # CS4459B-Consistent-Hashing
 
 ## Proxy
-1. Run with `python3 backend/proxy.py`, a server will start on port 4000.
+1. Run with `python3 proxy/proxy.py`, a server will start on port 4000.
 2. Navigate to [http://localhost:4000/](http://localhost:4000/) to see that the server is alive.
 3. Use Postman to send a POST request to [http://localhost:4000/heartbeat](http://localhost:4000/heartbeat) with the following data:
 ```
@@ -17,4 +17,12 @@ Discovered new server 'server.003' with status 'active'
 127.0.0.1 - - [09/Apr/2024 18:42:46] "POST /heartbeat HTTP/1.1" 200 -
 127.0.0.1 - - [09/Apr/2024 18:42:48] "POST /heartbeat HTTP/1.1" 200 -
 server.003 is down. Latest heartbeat received at 2024-04-09 18:42:48.716565
+```
+
+## Server
+Run one or more servers in different shells with:
+```
+python3 server/server.py 4001
+python3 server/server.py 4002
+python3 server/server.py 4003
 ```
