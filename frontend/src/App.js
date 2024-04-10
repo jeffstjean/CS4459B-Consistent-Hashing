@@ -4,7 +4,7 @@ import SmallCircle from './Components/SmallCircle';
 //import AddNodeForm from './Components/AddNodeForm';
 import ServerDetails from './Components/ServerDetails';
 import './App.css';
-import SidePane from './components/SidePane';
+import SidePane from './Components/SidePane';
 
 function App() {
     const [servers, setServers] = useState(
@@ -57,6 +57,7 @@ function App() {
 
     return (
       <div className="app-container">
+        <SidePane />
           <svg width={svgSize} height={svgSize} className="svg-container">
               <MainCircle cx={cx} cy={cy} radius={radius} />
               {servers.map(server => (
