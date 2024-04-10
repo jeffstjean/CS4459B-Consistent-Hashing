@@ -1,8 +1,17 @@
-// SmallCircle.js
 import React from 'react';
 
 function SmallCircle({ x, y, type, setHoveredServerID, serverID }) {
     const color = type === 'server' ? 'red' : 'blue';
+    const handleMouseEnter = () => {
+        if (type === 'server') {
+            setHoveredServerID(serverID);
+        }
+    };
+    const handleMouseLeave = () => {
+        if (type === 'server') {
+            setHoveredServerID(null);
+        }
+    };
 
     return (
         <circle
@@ -10,8 +19,8 @@ function SmallCircle({ x, y, type, setHoveredServerID, serverID }) {
             cy={y}
             r="10"
             fill={color}
-            onMouseEnter={() => setHoveredServerID(serverID)}
-            onMouseLeave={() => setHoveredServerID(null)}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
         />
     );
 }
