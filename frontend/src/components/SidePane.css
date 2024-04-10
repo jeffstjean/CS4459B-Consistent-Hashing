@@ -10,7 +10,6 @@
     border-right: 1px solid #ccc;
     overflow-y: auto; /* Allow scrolling if content overflows */
   }
-    
   
   h2 {
     font-size: 18px;
@@ -30,9 +29,16 @@
     color: white;
     border: none;
     cursor: pointer;
+    margin-bottom: 10px; /* Add margin between buttons */
   }
   
   button:hover {
     background-color: #0056b3;
+  }
+  
+  /* Style for button group */
+  .button-group {
+    display: flex;
+    justify-content: space-between;
   }
   
