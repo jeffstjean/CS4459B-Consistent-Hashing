@@ -52,7 +52,7 @@ function App() {
     };
 
     fetchData();
-    const intervalId = setInterval(fetchData, 5000); // Fetch data every 5 seconds
+    const intervalId = setInterval(fetchData, 1000); // Fetch data every 5 seconds
 
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
@@ -89,11 +89,12 @@ function App() {
 
   return (
     <div className="app-container">
-      <SidePane
-        onAddData={handleAddData}
-        onActivateNode={handleActivateNode}
-        onDeactivateNode={handleDeactivateNode}
-      />
+       <SidePane
+      onAddData={handleAddData}
+      onActivateNode={handleActivateNode}
+      onDeactivateNode={handleDeactivateNode}
+      server={servers.find(server => server.hash === hoveredServerID)} // Pass hovered server data
+    />
       <svg width={svgSize} height={svgSize} className="svg-container">
         <MainCircle cx={cx} cy={cy} radius={radius} />
         {servers.map(server => (
@@ -118,7 +119,7 @@ function App() {
           />
         ))}
       </svg>
-      {hoveredServerID && <ServerDetails server={servers.find(server => server.hash === hoveredServerID)} />}
+      {/* {hoveredServerID && <ServerDetails server={servers.find(server => server.hash === hoveredServerID)} />} */}
     </div>
   );
 }
