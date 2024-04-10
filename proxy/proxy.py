@@ -72,21 +72,6 @@ cleanup_thread.daemon = True
 cleanup_thread.start()
 
 
-# test route to see the app is alive
-@app.route('/')
-def main():
-    return jsonify({ 'message': 'Hello world', 'error': False })
-
-@app.route('/servers', methods=['GET'])
-def servers():
-    # save a locally copy using the lock
-    with lock:
-        servers = server_list
-    
-    converted_list = [{'name': key, 'hash': ConsistentHashing.hash(key), **value} for key, value in servers.items()]
-
-    return jsonify(converted_list)
-
 @app.route('/heartbeat', methods=['POST'])
 def heartbeat():
     # we expect servers to send heartbeat messages with the following structure
@@ -114,6 +99,20 @@ def heartbeat():
     # return some JSON data
     return jsonify({ 'isNew': isNew })
 
+def add_data(key, value):
+    key_hash = hashing.hash(key)
+    server_info = hashing.get_server(key_hash)
+    
+    if not server_info:
+        return jsonify({'error': 'No servers available'}), 503
+    
+    url = f"http://localhost:{server_info['port']}/data?key={key}&value={value}"
+
+    try:
+        requests.post(url, json=request.get_json())
+        return jsonify(success=True)
+    except requests.exceptions.RequestException as e:
+        return jsonify({ 'error': True, 'message': f'Failed to POST data: {e}' })
 
 @app.route('/data', methods=['GET', 'POST'])
 def data():
@@ -121,29 +120,17 @@ def data():
         data = request.json
         if 'key' not in data or 'value' not in data:
             return jsonify({ 'error': True, 'message': 'Please provide "key" and "value"'} ), 400
-
-        key_hash = hashing.hash(data['key'])
-        server_info = hashing.get_server(key_hash)
-        if not server_info:
-            return jsonify({'error': 'No servers available'}), 503
         
-        url = f"http://localhost:{server_info['port']}/data?key={data['key']}"
-
-        try:
-            requests.post(url, json=request.get_json())
-            return jsonify(success=True)
-        except requests.exceptions.RequestException as e:
-            return jsonify({ 'error': True, 'message': f'Failed to POST data: {e}' })
-
+        return add_data(data['key'], data['value'])
+    
     else:  # GET
         server_data = []
         with lock:
             for name, info in server_list.items():
                 try:
-                    print(f'Requesting {name}')
                     response = requests.get(f"http://localhost:{info['port']}/data", json={})
                     if response.status_code == 200:
-                        data_items = response.json()  # Assuming this returns a dict of {key: value}
+                        data_items = response.json()
                         print(f'Data: {data_items}')
                         data_list = [
                             {
@@ -159,11 +146,41 @@ def data():
                             "data": data_list
                         })
                 except requests.exceptions.RequestException:
-                    continue  # Optionally handle failed request to a server
+                    continue
 
-        print(server_data)
         return jsonify(server_data)
 
+@app.route('/status', methods=['POST'])
+def update_status():
+    if 'server' not in request.args or 'status' not in request.args:
+        return jsonify({ 'error': True, 'message': 'Please provide "server" and "status"'} ), 400
+
+    server_name = request.args.get('server')
+    status = request.args.get('status').lower()
+
+    if status != 'activate' and status != 'deactivate':
+        return jsonify({ 'error': True, 'message': '"status" must be "activate" or "deactivate"'} ), 400
+    
+    with lock:
+        if server_name in server_list:
+            server_info = server_list.pop(server_name, None)
+            hashing.remove_node(server_name)
+            if server_info:
+                try:
+                    url = f"http://localhost:{server_info['port']}/status"
+                    response = requests.post(url, json={'status': status})
+                    if status != 'deactivate':
+                        return jsonify({'success': True, 'message': 'Status updated'})
+                    
+                    print("Redistributing data")
+                    # data = response.json()
+                    # for key, value in data.items():
+                    #     add_data(key, value)
+                    return jsonify({'success': True, 'message': 'Status updated and data redistributed'})
+                except requests.exceptions.RequestException as e:
+                    return jsonify({'error': True, 'message': f'Failed to update status: {e}'}), 500
+                
+        return jsonify({'error': True, 'message': 'Server not found'}), 404
 
 
 if __name__ == '__main__':
