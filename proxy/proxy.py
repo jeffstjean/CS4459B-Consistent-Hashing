@@ -20,10 +20,9 @@ class ConsistentHashing:
         if hash_value in self.nodes:
             self.nodes.remove(hash_value)
 
-    def get_server(self, key):
+    def get_server(self, key_hash):
         if not self.nodes:
             return None
-        key_hash = self.hash(key)
         for node_hash in self.nodes:
             if key_hash <= node_hash:
                 return self._find_server_by_hash(node_hash)
@@ -118,21 +117,54 @@ def heartbeat():
 
 @app.route('/data', methods=['GET', 'POST'])
 def data():
-    key = request.args.get('key', '')
-    server_info = hashing.get_server(key)
-    if not server_info:
-        return jsonify({'error': 'No servers available'}), 503
-    
-    url = f"http://localhost:{server_info['port']}/data?key={key}"
-
     if request.method == 'POST':
-        response = requests.post(url, json=request.get_json())
-    else:
-        response = requests.get(url)
+        data = request.json
+        if 'key' not in data or 'value' not in data:
+            return jsonify({ 'error': True, 'message': 'Please provide "key" and "value"'} ), 400
 
-    return jsonify(response.json()), response.status_code
+        key_hash = hashing.hash(data['key'])
+        server_info = hashing.get_server(key_hash)
+        if not server_info:
+            return jsonify({'error': 'No servers available'}), 503
+        
+        url = f"http://localhost:{server_info['port']}/data?key={data['key']}"
 
-    return jsonify(success=True)
+        try:
+            requests.post(url, json=request.get_json())
+            return jsonify(success=True)
+        except requests.exceptions.RequestException as e:
+            return jsonify({ 'error': True, 'message': f'Failed to POST data: {e}' })
+
+    else:  # GET
+        server_data = []
+        with lock:
+            for name, info in server_list.items():
+                try:
+                    print(f'Requesting {name}')
+                    response = requests.get(f"http://localhost:{info['port']}/data", json={})
+                    if response.status_code == 200:
+                        data_items = response.json()  # Assuming this returns a dict of {key: value}
+                        print(f'Data: {data_items}')
+                        data_list = [
+                            {
+                                "key": key,
+                                "value": value,
+                                "hash": hashing.hash(key)
+                            }
+                            for key, value in data_items.items()
+                        ]
+                        server_data.append({
+                            "name": name,
+                            "hash": hashing.hash(name),
+                            "data": data_list
+                        })
+                except requests.exceptions.RequestException:
+                    continue  # Optionally handle failed request to a server
+
+        print(server_data)
+        return jsonify(server_data)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=4000)

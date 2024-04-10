@@ -96,9 +96,31 @@ function App() {
 
   const hoveredServer = servers.find(server => server.hash === hoveredServerID);
 
+  const handleAddData = (hashedData) => {
+    // Implement logic to update data in parent component
+    // POST data entered
+    console.log('Data added:', hashedData);
+  };
+
+  const handleActivateNode = () => {
+    // Implement logic to add a node
+    // POST CMD ACTIVATENODE
+    console.log('Node added');
+  };
+
+  const handleDeactivateNode = () => {
+    // Implement logic to remove a node
+    // POST CMD DEACTIVATENODE
+    console.log('Node removed');
+  };
+
   return (
     <div className="app-container">
-      <SidePane />
+      <SidePane
+        onAddData={handleAddData}
+        onActivateNode={handleActivateNode}
+        onDeactivateNode={handleDeactivateNode}
+      />
       <svg width={svgSize} height={svgSize} className="svg-container">
         <MainCircle cx={cx} cy={cy} radius={radius} />
         {servers.map(server => (
