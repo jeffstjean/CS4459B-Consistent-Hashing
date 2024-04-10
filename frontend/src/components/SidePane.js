@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import './SidePane.css';
+import ServerDetails from './ServerDetails';
 
-function SidePane({ onAddData, onActivateNode, onDeactivateNode }) {
+function SidePane({ onAddData, onActivateNode, onDeactivateNode, server }) {
   const [keyValue, setKeyValue] = useState({ key: '', value: '' });
   const [error, setError] = useState(null);
 
@@ -77,6 +78,8 @@ function SidePane({ onAddData, onActivateNode, onDeactivateNode }) {
         <button onClick={onActivateNode}>Add Node</button>
         <button onClick={onDeactivateNode}>Remove Node</button>
       </div>
+      
+      {server && <ServerDetails server={server} />}
     </div>
   );
 }
